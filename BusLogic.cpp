@@ -29,31 +29,38 @@
  *
    Requirements freewrite:
         Configure expected Object size: OBJ_SIZE_MIN, OBJ_SIZE_MAX 
+
         For {Theta: 0 <= Theta < 360}
-        Scan feature points from text file, floating point values
+                Scan feature points from text file, floating point values
         Assume file format where each line has a valid floating point value with <CR><LF> at the end.
-        aaa.aaa, bbb.bbb, ccc.ccc, ...
+        aaa.aaa,bbb.bbb,ccc.ccc,...
+
         Create a list of features, ListOfFeatures:  
             Attributes: PositionOnCircleDeg, PrevFeature, NextFeature
             Implementation: vector
+
         Create a list of objects with center of arc object and boundaries, ListOfObjs: 
             Attributes: PositionOnCircleDeg, PrevObj, NextObj
+            Implementation: vector
+
             Algorithm:    
-        Initialize object count to zero.
-        Set CurrentFeature = index 0.
-        While current feature is valid.
-        Label: New feature
-        Initialize feature count to zero.
-        Label: process a feature
-        Repeat:
-        Is next feature within 10 degrees? If not, cycle as current feature is outlier. ObjectFound = false
-        Else
-        Print the list of objects, PrintObjs
+                Initialize object count to zero.
+                Set CurrentFeature = index 0.
+                While current feature is valid.
+                Label: New feature
+                Initialize feature count to zero.
+                Label: process a feature
+                Repeat:
+                   Is next feature within 10 degrees? If not, cycle as current feature is outlier. ObjectFound = false
+                Else
+                    Print the list of objects, PrintObjs
+
         Assumptions:
         No feature crosses 360 degree boundary. This boundary is set at the tail at the aircraft to minimize omission of an item of interest.
         Object size is between 20 and 30 degrees arc. (Actually, this is far too big and must be made much smaller.)
         Objects are no closer than 20 degrees next to one another. There is no overlap.
         A feature > ½ sigma away from center of object is considered an outlier. For simplicity, assume sigma is 10.
+
         Optional features:
         Compute sigma for object.
         If feature is omitted from proposed object, it is removed from feature collection and object center is recomputed. Additional features removed from object as needed until no feature is more than one half sigma away from center of object or object is found to have no more than FEATURE_MIN (3) features in it. If this happens, the object is considered to have been nullified (that is, determined to not be an object).
