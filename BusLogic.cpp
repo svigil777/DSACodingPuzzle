@@ -246,12 +246,12 @@ class Detector
                                           //        for unused doesn't work with unsigned underlying 
                                           //        type.
 
-   vector<float> &feature_p;              // Pointer to feature vector of floats.
+   vector<float> &feature_r;              // Pointer to feature vector of floats.
 
    // Member Functions()
 
-   Detector(vector<float> &featureInit_p)
-      : feature_p(featureInit_p)
+   Detector(vector<float> &featureInit_r)
+      : feature_r(featureInit_r)
    {
    }
 
@@ -261,7 +261,7 @@ class Detector
       bool     result;     // ToDo, place a pointer in Detector class that is initialized
                            // upon instantiation... of Detector.
 
-      thetaDiff = feature_p[currentFeatureID + 1] - feature_p[currentFeatureID];
+      thetaDiff = feature_r[currentFeatureID + 1] - feature_r[currentFeatureID];
       result    = (thetaDiff <= maxDiff);
       return result;
    }
