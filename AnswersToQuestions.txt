@@ -1,0 +1,156 @@
+Answers to Basic Questions:
+
+1. Write your code in C++ to solve the problem stated above. Focus on the key problem of how to find clusters. Your code will be assessed according to these criteria, from most to least important: 
+ o Correctness on test cases 
+ o Simplicity
+ o Maintainability: Modular, readable, "don't repeat yourself", testable, etc. 
+ o Performance: Don't improve performance at the cost of readability! 
+
+A: This actually, wasn't a question per se. I was asked to focus on the
+problem of finding clusters. That, I jumped into with gusto from a design
+perspective. However, I chose to make this fun and real by implementing in
+code, starting from a bottom up perspective. I got so far as to bring data
+into the application. My implementation made use of the vector and istream
+classes. 
+
+Then, I iterated with a few passes on the cluster finding algorithm. I
+implemented from an object orientation perspective.
+
+I used object oriented techniques as much as possible to enhance code reuse
+and leverage the highly used and well wrought out Standard Template Library
+for the I/O section. This code is admittedly complex and presents issues of
+its own in terms of maintainability. Certainly, use of sophisticated
+mechanisms as istream must be well understood and documented.
+
+From a design perspective, I believe in the Object Oriented paradigm.
+Co-locating data and implementation, using accessor methods and other very
+simple ideas alleviates some of the "grepping" necessary to understood
+functionality interspersed in sphagetti code where functionality can be
+distributed like meatballs through buckets and buckets of such Italian fare
+('nothing against the Italians, I love their food!)
+
+Time spent in requirements design has payoffs downstream in implementation and
+testing... that has been proven and is one of the tenants of RTCA's DO-178,
+"Software Considerations in Airborne Software". It's not just a rule to try to
+get around when driving an application toward certification.
+
+So, I started with a top down, design driven approach. And then worked from
+the opposite perspective on a bottom-up approach to get things happening and
+keep me rooted in the realities provided by a working CPU and build
+environment. In so doing, I think I demonstrated that I can work at both
+levels of abstraction. By continuing with that approach, I meet in the middle.
+I have code that works.
+
+With the 777, we started off with lab test, moved to testing systems in the
+plane on the tarmac. Then, we fired up the plane and ran her on the ground for
+a while... taxied around, took data, solved more problems. Then, we flew at a
+relatively small flight envelope and increased the flight envelope as our
+confidence in sysems increased.
+
+So too with code, we can add subsystems, test, add, test and continue. This
+favors a bottom up approach. However, you have to have some sort of a design
+to guide you. Otherwise, you have a prototype that has entirely disconnected
+from the requirements. Therefore, an iterative incremental approach is
+required.
+
+Starting from the top and then working down to the ground can result in a sort
+of "Ivory Tower" where you just are disconnected from the hardware and the
+infrastructure, and you don't really understand how far off you are, until you
+really try to integrate with the hardware.
+
+When you look under the hood, there's not a whole lot of simplicity. However,
+if you go to my main(), There's really not going to be a whole lot of code
+there. Much of the functionality is abstracted out into class methods. I think
+that's the right way to go... "Hiding" of complexity in subcomponents allows
+the user to think at a higher level of abstraction and only go into the "nuts
+and bolts" when it's necessary to understand. But, abstraction is truly the
+necessary means to build ever more complex designs and make them actually
+work. Somebody needs to "see the forest through the trees", to use a very good
+cliche'...
+
+2. Write a paragraph discussing your solution. Talk about whatever seems interesting to you. For example: how it works, why it's a good approach, possible bugs you're concerned about
+
+A: Well, I think I've already discussed a lot about the solution. Notes in the
+readme and the code discuss how the solution "works". I use that word in
+quotations as final solution is still a conceptual thing. Nevertheless,
+working code that reads any data-file is implemented and tested and works
+flawlessly in that it brings data into a vector class and then puts it back
+out again as a stream of floats for the evaluator to see again.
+
+I did get a little lost in the wees at one point. I confused the process of
+identifying obstacles in the feature data with the process of scanning a
+vector of obstacles and couting them back out to the pipeline. That setback
+cost me some time and clarity in my first submission. However, after a little
+sleep, I was able to identify the confusion and iron out what a conceptual
+error in the design. 
+
+I considered using STL linked lists. They provide lots of flexibility and
+could be useful with a more complex data topology. However, obstacle data in a
+vector is still placed sequentially in memory and are therefore more
+efficient. So, staying with the vector made sense, even though lists are cool
+and fun to work with.
+
+I don't worry that there is any kind of a disconnect between my overall design
+and methods available with the STL classes I chose to use. Vectors are quite
+simple. There can be large increases in the amount of data applied to the
+algorithms and the code will apply without modification. However, the code can
+be tuned if data sizes are known before hand. Data storage can be
+pre-allocated and performance increases will be realized with little effort.
+
+With regard to my algorithm for finding obstacles... certainly additional work
+could be done to improve that. One feature in this regard is worth mentioning.
+I made assumptions with regard to what my obstacles would look like and set
+assumptions to match. This approach was based on a similar approach used to
+detect the recent collision of two black holes with the new LIGO Detector.
+Many different models were created to show what different wave forms could be
+expected. Then, code was written to test wave form data to detect such
+occurences. So, that was an inspiration that I incorporated into my solution.
+I think similar profiling was also used to image the very first black hole at
+the center of our own Milky Way galaxy. I never expected that my nerdish
+fascination with progress in the basic sciences would be applied in an
+emplyment test  ;^)
+
+
+Extra Credit Questions:
+
+Q: Critique the problem statement and suggest ways it could be clarified in
+order to avoid surprises with the implementation. What assumptions did you
+make that helped you write your solution?'
+
+A: My only critique with the problem statement is that it is on artificial
+intelligence... that doesn't seem to be a super good match. As I understand
+it, the job position I am being evaluated for is to do I/O code... another
+reason I focused on demonstrating that I could use vector and istream classes
+in the STL and that data was actually moved around... as required by any AI
+algorithm for detecting obstacles. But, you did force me to show that I can
+think at higher levels of abstraction and produce an object oriented design.
+So... as long as I showed you capabilities you want to see, it's all good!
+
+
+
+Q: Critique this obstacle avoidance approach from a robotics perspective. What problems would you expect to find with this approach and how would you mitigate them? (Obviously this is a bit of a toy problem and a cluster of visual features doesn't necessarily mean an obstacle is there in the real world, but you may have other interesting comments here.) 
+
+A: Well, associating all the features together without range, azimuth or color
+data or any kind of identification of what the obstacles might be, is going to
+provide a limited solution. If this were on a twenty ton troup carrier such as
+the one I did autonomous software on in Maryland for General Dynamics before
+being stolen to another more lucrative project, we would want the AI to be
+intelligent to determine which of the objects was a bus and which was a human
+being in case it could not avoid both.
+
+Field test of that machine was sobering. We put a sled with a manican on a
+cable to simulate a pedestrian walking in front of the machine as it was
+barrelling along. As that machine raced up to the simulated person, it seemed
+wickedly stupid. Worse, though us engineers were packed into the cab of a
+Dodge Ram, I felt so vulnerable. There was indeed a safety engineer with hand
+ready to mash the safety button. And my STL based code was in between him and
+the actual electro-mechanical stop function. All that was sobering... I sat in
+that Dodge Ram. It's exo-skeleton seemed like paper in relation to the mass of
+the twenty-ton troupe carrier, madly dashing over the farmland... capable of
+going crazy and turning into us in mere seconds...
+
+
+
+
+
+
