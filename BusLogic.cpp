@@ -128,8 +128,8 @@ TYPES:
                                         // 0.5 * feature(rightEdgeID) - feature(leftEgeID)
                                         // units in degrees
 STRUCTURES:
-    vector<float>       feature;        // Input data of features. Domain {degrees/ 0 <= degrees < 360}
-    vector<obstacle_t>  obstacle;       // Vector of obstacles. This is the output data.
+#   vector<float>       feature;        // Input data of features. Domain {degrees/ 0 <= degrees < 360}
+#   vector<obstacle_t>  obstacle;       // Vector of obstacles. This is the output data.
 
 CLASSES:
     Class obstacleHelper:               // Singleton class used to operate on objects vector.
@@ -139,33 +139,33 @@ CLASSES:
                 CoutObstacle()          // Cout a single obstacle. 'must index into obstacles vector to obtain
                                         // obstacle location values. Cout units in degrees.
 
-    Class detector:  // Detector class provides "machinery" to traverse through features and search
+    Class Detector:  // Detector class provides "machinery" to traverse through features and search
                      // for obstacles. Main functions, IDFirstObstacle() and IDNextObstacle(), are used 
                      // to "identify", obstacles. This is a singleton class.
 
-        detector Attributes:
-                    CurrentObstacle = 0   // Index into obstacles vector of current obstacle being "examined".
-                    leftEdgeID            // Index into feature vector of candidate object left edge.
-                    rightEdgeID           // Index into feature vector of obstacle right edge.
-                    boolean lastObstacle = false
+        Detector Attributes:
+                currentObstacle = 0   // Index into obstacles vector of current obstacle being "examined".
+                leftEdgeID            // Index into feature vector of candidate object left edge.
+                rightEdgeID           // Index into feature vector of obstacle right edge.
+                boolean lastObstacle = false
                                           // True when obstacleHelper has traversed features and no more 
                                           // obstacles can be found.
-        obstacleHelper Attributes:
                 maxDiff = 10 degrees    ‘largest angle between features all on the same obstacle.
-                minfeatureInObj = 3     This is the smallest number of clumped features to be
+                minFeatureInObst = 3     This is the smallest number of clumped features to be
                                         Considered an obstacle
                 featureCount = 1        Minimum assumed feature count
 
                 currentFeatureID = -1   // Index into feature vector is -1 until vector is traversed.
                 boolean lastObstacle = false
 
-        detector Methods:
+        Detector Methods:
                 nextFeatureInRange()
-                    return “quit” if nextFeatureValid is false
                     thetaDiff = data[currentFeatureID+1] - data[currentFeatureID]
                     result = (thetaDiff <= maxDiff)
                     return result
-
+                nextFeatureValid()
+                    false if index computed beyond end of vector.
+                    ... when currentFeatureID + 1 goes beyond last index in feature vector.
 
                 isFalseLastObstacle()
                     Return true if lastObstacle is false
@@ -177,12 +177,12 @@ CLASSES:
                     leftEdgeID = currentFeatureID               Index into feature vector for feature defining left 
                                                                 edge of obstacle
                     nextFeatureID = currentFeatureID + 1                // Assume valid
-                    While (nextFeatureInRange) {
+                    While (nextFeatureValid) {
                         If nextFeatureInRange 
                             RightEdgeID = CurrentFeatureID
                             FeatureCount++
                             currentFeatureID++
-                            If featureCount > minfeatureInObj, set thisIsAnObj = true   
+                            If featureCount > minFeatureInObst, set thisIsAnObj = true   
                         ComputeMidpoint()
                     // Done with this obstacle. Next, we move on to evaluate for next feature and to 
                     // see if possibly it is left edge of the next obstacle
@@ -194,12 +194,12 @@ CLASSES:
                     // featureCount                             Currently valid in feature object
                     leftEdgeID = currentFeatureID               // Candidate left edge
                     // nextFeatureID = currentFeatureID + 1     // Assume set and valid by nextFeatureInRange()
-                    While (nextFeatureInRange) {
+                    While (nextFeatureValid) {
                         If nextFeatureInRange 
                             RightEdgeID = CurrentFeatureID
                             FeatureCount++
                             currentFeatureID++
-                            If featureCount > minfeatureInObj, set thisIsAnObj = true      
+                            If featureCount > minFeatureInObst, set thisIsAnObj = true      
                     // Done with this obstacle. Next, we move on to evaluate for next feature and to 
                     // see if possibly it is left edge of the next obstacle
                     // Todo: Handle condition where we run out of Features. Then, processing ends.
@@ -209,9 +209,76 @@ CLASSES:
                      ObstacleMidpoint   = feature[currentFeatureID].rightEdge 
                                                                  - feature[currentFeatureID].leftEdge
                 Todo, compute as average of theta values for all points from left edge to right edge.
-
-
  */
+
+// TYPES
+typedef unsigned  index_t; // Index into a vector.
+typedef float     angle_t; // Angular displacement, degrees.
+
+typedef struct
+{
+   index_t currentFeatureID;            // Used during traversal of feature vector
+   index_t leftEdgeID;                  // Obstacle left edge identifier. Index into feature vector
+   index_t rightEdgeID;                 // Obstacle right edge identifier. Index into feature vector
+   angle_t location;                    // location of obstacle center.
+                                        // 0.5 * feature(rightEdgeID) - feature(leftEgeID)
+}   obstacle_t;         // units in degrees
+
+class Detector
+{
+
+   public:
+
+   // Data Members
+   index_t        currentObstacle = 0;    // Index into obstacles vector of current obstacle being "examined".
+   index_t        leftEdgeID;             // Index into feature vector of candidate object left edge.
+   index_t        rightEdgeID;            // Index into feature vector of obstacle right edge.
+   bool           lastObstacle;           // True when obstacleHelper has traversed features and no more 
+                                          // obstacles can be found.
+   angle_t        maxDiff = 10;           // ‘largest angle between features all on the same obstacle.
+                                          //  - simple form of outlier detection. Todo - work this logic a bit.
+   unsigned       minFeatureInObst = 3;   // This is the smallest number of clumped features to be
+                                          // Considered an obstacle
+   unsigned       featureCount = 1;       // Minimum assumed feature count
+
+   index_t        currentFeatureID = 0;   // Index into feature vector is -1 until vector is traversed.
+                                          // Todo - use different way to verify unused. -1 
+                                          //        for unused doesn't work with unsigned underlying 
+                                          //        type.
+
+   vector<float> &feature_p;              // Pointer to feature vector of floats.
+
+   // Member Functions()
+
+   Detector(vector<float> &featureInit_p)
+      : feature_p(featureInit_p)
+   {
+   }
+
+   bool nextFeatureInRange()
+   {
+      angle_t thetaDiff;
+      bool     result;     // ToDo, place a pointer in Detector class that is initialized
+                           // upon instantiation... of Detector.
+
+      thetaDiff = feature_p[currentFeatureID + 1] - feature_p[currentFeatureID];
+      result    = (thetaDiff <= maxDiff);
+      return result;
+   }
+
+   bool isFalseLastObstacle()
+   {
+      if (lastObstacle)
+      {
+         return true;
+      }
+      else
+      {
+         return false;
+      }
+   }
+
+}; // Detector
 
 /*
  * MAIN
@@ -219,10 +286,17 @@ CLASSES:
 int main( int argc, char **argv )
 {
 /*
+       DATA STRUCTURES SECTION:
+*/
+   vector<float>        feature;       // Vector of features... input data.
+   vector<obstacle_t>   obstacle;      // Vector of obstacles. This is the output data.
+   Detector             detector(feature);
+                                       // Todo, provide address of feature to constructor.
+
+   cout << "minFeatureInObst = " << detector.minFeatureInObst << endl;  // Tst
+/*
        DATA IMPORT SECTION:
 */
-    vector<float> feature;
-
     assert(argc >= 2); // Todo: Make more elegant check for usage errors.
     ifstream fin(argv[1]);
     if( fin )
@@ -233,6 +307,7 @@ int main( int argc, char **argv )
 
         fin.close();
     }
+
 
 /* 
         ALGORITHMIC SECTION:
