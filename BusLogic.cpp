@@ -246,25 +246,68 @@ class Detector
                                           //        for unused doesn't work with unsigned underlying 
                                           //        type.
 
+   /* todo - why do I need this?
+   */
    vector<float> &feature_r;              // Pointer to feature vector of floats.
+   vector<float>::iterator f_it;    // feature iterator.
 
    // Member Functions()
 
+   // Todo: Add creation of feature iterator to constructor...
    Detector(vector<float> &featureInit_r)
       : feature_r(featureInit_r)
    {
+      /*
+         if ( f_it == featureInit_r.begin() )
+         cout << "Detector(): feature_r.begin() = " << *f_it << endl;
+      if (*feature_Init_r == f_r[0])
+      {
+         cout << "f_it equals begin.";
+      }
+      else
+      {
+         cout << "f_it doesn't equal begin.";
+      }
+      cout << endl;
+      return true;
+      */
    }
 
    bool nextFeatureInRange()
    {
       angle_t thetaDiff;
-      bool     result;     // ToDo, place a pointer in Detector class that is initialized
+      bool     result = false;     // ToDo, place a pointer in Detector class that is initialized
+      vector<float>::iterator n_it;
+      n_it = f_it + 1;              // Assume next value in vector is valid.
                            // upon instantiation... of Detector.
+      cout << ", Next:" << *(n_it);
 
-      thetaDiff = feature_r[currentFeatureID + 1] - feature_r[currentFeatureID];
+      // thetaDiff = feature_r[currentFeatureID + 1] - feature_r[currentFeatureID];
+      thetaDiff = *n_it - *f_it;
+      cout << ", Diff:" << (float)thetaDiff;
+
       result    = (thetaDiff <= maxDiff);
+      cout << ", NextInRange:" << result;
       return result;
    }
+
+   bool nextFeatureValid()
+   {
+       //                false if index computed beyond end of vector.
+       //             ... when currentFeatureID + 1 goes beyond last index in feature vector.
+       //
+       //             c = current iterator value.
+       //             n = f + 1 = next iterator value
+       //             return ( (n is not last element) );
+
+      bool result = false;
+      vector<float>::iterator n_it;
+      n_it = f_it + 1;
+      result = (n_it != feature_r.end());
+      cout << "NextValid:" << result;
+      return (result);
+   }
+
 
    bool isFalseLastObstacle()
    {
@@ -290,10 +333,8 @@ int main( int argc, char **argv )
 */
    vector<float>        feature;       // Vector of features... input data.
    vector<obstacle_t>   obstacle;      // Vector of obstacles. This is the output data.
-   Detector             detector(feature);
-                                       // Todo, provide address of feature to constructor.
-
-   cout << "minFeatureInObst = " << detector.minFeatureInObst << endl;  // Tst
+   // Detector d;
+   Detector d(feature);
 /*
        DATA IMPORT SECTION:
 */
@@ -312,6 +353,8 @@ int main( int argc, char **argv )
 /* 
         ALGORITHMIC SECTION:
        
+         Detector             detector(feature);
+
         IDFirstObstacle(Features)
         If CurrentFeatureID == -1, quit
         lastObstacle = false
@@ -320,12 +363,29 @@ int main( int argc, char **argv )
             IDNextObstacle(Features)
 */
 
+        cout << "BusLogic 3/13/2020 15:41" << endl;
+        cout << "f_it:" << endl;
+        for (d.f_it = feature.begin() ; d.f_it != feature.end(); ++d.f_it) 
+        {
+           // Todo - Add feature processing here.
+
+           cout << *d.f_it << ", ";
+
+           if (d.nextFeatureValid())
+           {
+              bool inRange = d.nextFeatureInRange();
+           }
+           cout << endl;
+
+        }
+
 /*
        OUTPUT SECTION:
        feature now contains all floating point values in the comma-delimited
        data file.  now dump them to the screen to verify:
 */
-    copy( feature.begin(), feature.end(), ostream_iterator<float>( cout, " " ) );
+// This works!
+//    copy( feature.begin(), feature.end(), ostream_iterator<float>( cout, " " ) );
 
     // Todo: Replace output of input data with output of Algorithmic Section
 
