@@ -2,6 +2,45 @@ DSA Coding Puzzle Assignment v.2
 
 Candidate:  Scott Vigil  svigil777@gmail.com
 
+3/13/2020:
+
+DSA Coding Puzzle Assignment v.
+
+Candidate:  Scott Vigil  svigil777@gmail.com
+
+Build/Test Instructions:
+Build and test were performed under the latest CygWin toolset.
+
+Console example...
+
+svigi@DESKTOP-P9H9KT8 /cygdrive/c/cygwin64/home/svigi/Proj/BusLogic
+$ g++ -o BusLogic BusLogic.cpp
+
+svigi@DESKTOP-P9H9KT8 /cygdrive/c/cygwin64/home/svigi/Proj/BusLogic
+$ ./BusLogic i2.txt
+BusLogic 3/13/2020 15:41
+f_it:
+70.9, NextValid:1, Next:71.9, Diff:1, NextInRange:1
+71.9, NextValid:1, Next:72.3, Diff:0.400002, NextInRange:1
+72.3, NextValid:1, Next:82.3001, Diff:10.0001, NextInRange:0
+82.3001, NextValid:0
+
+Status:
+I have implemented code to bring input file data in to a vector of "features" named 
+"feature". Currently, the code simply prints the input back out again. A pass at the 
+algorithms and class structures has been designed to solve the DSA Coding Puzzle.
+
+Now, many of the methods of the Detector class have been implemented and are
+up and running.
+
+Todo:
+o Complete final Detector methods.
+o Product output section.
+o Tune parameters for expected dataset.
+o Cleanup.
+
+3/3/2020:
+
 Build/Test Instructions:
 Build and test were performed under the latest CygWin toolset.
 
