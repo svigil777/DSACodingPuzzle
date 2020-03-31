@@ -1,0 +1,46 @@
+svigi@DESKTOP-P9H9KT8 /cygdrive/c/cygwin64/home/svigi/Proj/BusLogic
+$ ./BusLogic.exe i5.txt
+BusLogic 3/30/2020 18:54
+Obstacle Detection State Machine - Instrumentation On
+1000 *feature.begin() 1.2,
+1010 *d.f_it 1.2,
+t0, freeFeature
+
+TOF:  *d.f_it 1.2d.featureCount 1
+freeFeature
+t1b,
+
+TOF:  *d.f_it 11.3d.featureCount 1
+freeFeature
+t1a,   lEdge 11.3,
+
+
+TOF:  *d.f_it 21.3d.featureCount 2
+t2c,
+
+TOF:  *d.f_it 22d.featureCount 3
+t2b,
+
+TOF:  *d.f_it 41.2d.featureCount 1
+freeFeature
+t1a,   lEdge 41.2,
+
+
+TOF:  *d.f_it 51.2d.featureCount 2
+t2c,
+
+TOF:  *d.f_it 52d.featureCount 3
+t2c,
+
+TOF:  *d.f_it 52.8d.featureCount 4
+t2a,
+
+TOF:  *d.f_it 53.8d.featureCount 4
+obstacleOpen
+t3c,
+
+TOF:  *d.f_it 54.8d.featureCount 5
+obstacleOpen
+t3t,   obstruction center.. 48, left edge.., 41.2, right edge.., 54.8
+State machine exit.
+
