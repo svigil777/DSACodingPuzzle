@@ -3,70 +3,7 @@
  * 
  * Candidate:  Scott Vigil  svigil777@gmail.com
  *
- * Build/Test Instructions:
- * Build and test were performed under the latest CygWin toolset.
- * 
- * Console example...
- * svigi@DESKTOP-P9H9KT8 ~/Proj/BusLogic
- * $ g++ -o BusLogic BusLogic.cpp
- * 
- * svigi@DESKTOP-P9H9KT8 ~/Proj/BusLogic
- * $ ./BusLogic.exe input0.txt
- * 70.9 71.9 72.3 73.2 73.9 77.2 77.2 79.4 79.8 82.3 83.3 85.8 87.3 152.3 169.6 170.7 176.3 176.9 177.2 179.4 180.1 181.2 181.9 182 182.6 185.5 188.5 338.1 338.7 339.8 340 340.2 344.1 344.2 344.8 347.3 348.5 350.4 351.3 351.8
- * 
- * Status:
- * I have implemented code to bring input file data in to a vector of "features" named 
- * "feature". Currently, the code simply prints the input back out again. A pass at the 
- * algorithms and class structures has been designed to solve the DSA Coding Puzzle.
- *
- * Todo:
- * o Class definitions needs to be refined. Choice between use of vectors or lists needs 
- *   more attention. 
- * o Algorithmic detail (aka business logic) needs to be realized in code.
- * o Design material and code needs to be saved into GIT.
- * o Design material needs to be written to assigned format.
- * o Questions asked about the code not addressed in these comments need to be answered.
- *
-   Requirements freewrite:
-        Configure expected Object size: OBJ_SIZE_MIN, OBJ_SIZE_MAX 
-
-        For {Theta: 0 <= Theta < 360}
-                Scan feature points from text file, floating point values
-        Assume file format where each line has a valid floating point value with <CR><LF> at the end.
-        aaa.aaa,bbb.bbb,ccc.ccc,...
-
-        Create a list of features, ListOfFeatures:  
-            Attributes: PositionOnCircleDeg, PrevFeature, NextFeature
-            Implementation: vector
-
-        Create a list of objects with center of arc object and boundaries, ListOfObjs: 
-            Attributes: PositionOnCircleDeg, PrevObj, NextObj
-            Implementation: vector
-
-            Algorithm:    
-                Initialize object count to zero.
-                Set CurrentFeature = index 0.
-                While current feature is valid.
-                Label: New feature
-                Initialize feature count to zero.
-                Label: process a feature
-                Repeat:
-                   Is next feature within 10 degrees? If not, cycle as current feature is outlier. ObjectFound = false
-                Else
-                    Print the list of objects, PrintObjs
-
-        Assumptions:
-        No feature crosses 360 degree boundary. This boundary is set at the tail at the aircraft to minimize omission of an item of interest.
-        Object size is between 20 and 30 degrees arc. (Actually, this is far too big and must be made much smaller.)
-        Objects are no closer than 20 degrees next to one another. There is no overlap.
-        A feature > ½ sigma away from center of object is considered an outlier. For simplicity, assume sigma is 10.
-
-        Optional features:
-        Compute sigma for object.
-        If feature is omitted from proposed object, it is removed from feature collection and object center is recomputed. Additional features removed from object as needed until no feature is more than one half sigma away from center of object or object is found to have no more than FEATURE_MIN (3) features in it. If this happens, the object is considered to have been nullified (that is, determined to not be an object).
-         * 
  */
-
 #include <assert.h>
 #include <iostream>
 #include <sstream>
@@ -111,118 +48,9 @@ const string csv_istream_iterator<string>::operator *() const {
     return _value;
 }
 
-/*
- * CLASS DESIGN - ALGORITHMIC SECTION
- 
-Assumptions
-Naming conventions in algorithm documentation below do not attempt to precisely model expected naming conventions in code. They are meant to be a guide as to what class, attribute and method names may be.
-
-Certain assumptions about the nature of the obstructions are identified in the attribute initializers. These can be tuned for a given obstruction environment with respect to size of obstructions and separation.
-
-TYPES:
-    obstacle_t
-        currentFeatureID                // Used during traversal of feature vector
-        leftEdgeID                      // Obstacle left edge identifier. Index into feature vector
-        rightEdgeID                     // Obstacle right edge identifier. Index into feature vector
-        location                        // location of obstacle center.
-                                        // 0.5 * feature(rightEdgeID) - feature(leftEgeID)
-                                        // units in degrees
-STRUCTURES:
-#   vector<float>       feature;        // Input data of features. Domain {degrees/ 0 <= degrees < 360}
-#   vector<obstacle_t>  obstacle;       // Vector of obstacles. This is the output data.
-
-CLASSES:
-    Class obstacleHelper:               // Singleton class used to operate on objects vector.
-
-        obstacleHelper Methods:
-
-                CoutObstacle()          // Cout a single obstacle. 'must index into obstacles vector to obtain
-                                        // obstacle location values. Cout units in degrees.
-
-    Class Detector:  // Detector class provides "machinery" to traverse through features and search
-                     // for obstacles. Main functions, IDFirstObstacle() and IDNextObstacle(), are used 
-                     // to "identify", obstacles. This is a singleton class.
-
-        Detector Attributes:
-                currentObstacle = 0   // Index into obstacles vector of current obstacle being "examined".
-                leftEdgeID            // Index into feature vector of candidate object left edge.
-                rightEdgeID           // Index into feature vector of obstacle right edge.
-                boolean lastObstacle = false
-                                          // True when obstacleHelper has traversed features and no more 
-                                          // obstacles can be found.
-                maxDiff = 10 degrees    ‘largest angle between features all on the same obstacle.
-                minFeatureInObst = 3     This is the smallest number of clumped features to be
-                                        Considered an obstacle
-                featureCount = 1        Minimum assumed feature count
-
-                currentFeatureID = -1   // Index into feature vector is -1 until vector is traversed.
-                boolean lastObstacle = false
-
-        Detector Methods:
-                nextFeatureInRange()
-                    thetaDiff = data[currentFeatureID+1] - data[currentFeatureID]
-                    result = (thetaDiff <= maxDiff)
-                    return result
-                nextFeatureValid()
-                    false if index computed beyond end of vector.
-                    ... when currentFeatureID + 1 goes beyond last index in feature vector.
-
-                isFalseLastObstacle()
-                    Return true if lastObstacle is false
-                    else return false
-        
-                IDFirstObstacle()               This might be same as IDNextObstacle, but not sure yet.
-                    // currentFeatureID = 0                     Assume initialized and valid data input
-                    // featureCount = 1                         Assumed for first ID
-                    leftEdgeID = currentFeatureID               Index into feature vector for feature defining left 
-                                                                edge of obstacle
-                    nextFeatureID = currentFeatureID + 1                // Assume valid
-                    While (nextFeatureValid) {
-                        If nextFeatureInRange 
-                            RightEdgeID = CurrentFeatureID
-                            FeatureCount++
-                            currentFeatureID++
-                            If featureCount > minFeatureInObst, set thisIsAnObj = true   
-                        ComputeMidpoint()
-                    // Done with this obstacle. Next, we move on to evaluate for next feature and to 
-                    // see if possibly it is left edge of the next obstacle
-
-                IDNextObstacle()
-                    // General: Cycle through the features in order to identify and locate the next obstacle.
-
-                    // currentFeatureID // Available from feature array. Assume valid data.
-                    // featureCount                             Currently valid in feature object
-                    leftEdgeID = currentFeatureID               // Candidate left edge
-                    // nextFeatureID = currentFeatureID + 1     // Assume set and valid by nextFeatureInRange()
-                    While (nextFeatureValid) {
-                        If nextFeatureInRange 
-                            RightEdgeID = CurrentFeatureID
-                            FeatureCount++
-                            currentFeatureID++
-                            If featureCount > minFeatureInObst, set thisIsAnObj = true      
-                    // Done with this obstacle. Next, we move on to evaluate for next feature and to 
-                    // see if possibly it is left edge of the next obstacle
-                    // Todo: Handle condition where we run out of Features. Then, processing ends.
-                    // Todo: Handle condition where an obstacle spans the perimeter at the boundary.      
-                    //       For example, if an obstacle spans from 358 to 2 degrees.
-        ComputeMidpoint()
-                     ObstacleMidpoint   = feature[currentFeatureID].rightEdge 
-                                                                 - feature[currentFeatureID].leftEdge
-                Todo, compute as average of theta values for all points from left edge to right edge.
- */
-
 // TYPES
 typedef unsigned  index_t; // Index into a vector.
 typedef float     angle_t; // Angular displacement, degrees.
-
-typedef struct
-{
-   index_t currentFeatureID;            // Used during traversal of feature vector
-   index_t leftEdgeID;                  // Obstacle left edge identifier. Index into feature vector
-   index_t rightEdgeID;                 // Obstacle right edge identifier. Index into feature vector
-   angle_t location;                    // location of obstacle center.
-                                        // 0.5 * feature(rightEdgeID) - feature(leftEgeID)
-}   obstacle_t;         // units in degrees
 
 class Detector
 {
@@ -230,97 +58,95 @@ class Detector
    public:
 
    // Data Members
-   index_t        currentObstacle = 0;    // Index into obstacles vector of current obstacle being "examined".
-   index_t        leftEdgeID;             // Index into feature vector of candidate object left edge.
-   index_t        rightEdgeID;            // Index into feature vector of obstacle right edge.
+   vector<angle_t>::iterator lEdge_it;      // Interator into feature vector of candidate object left edge.
+   vector<angle_t>::iterator rEdge_it;      // Interator into feature vector of obstacle right edge.
+
    bool           lastObstacle;           // True when obstacleHelper has traversed features and no more 
                                           // obstacles can be found.
    angle_t        maxDiff = 10;           // ‘largest angle between features all on the same obstacle.
                                           //  - simple form of outlier detection. Todo - work this logic a bit.
-   unsigned       minFeatureInObst = 3;   // This is the smallest number of clumped features to be
+   unsigned       minFeatureInObst = 4;   // This is the smallest number of clumped features to be
                                           // Considered an obstacle
    unsigned       featureCount = 1;       // Minimum assumed feature count
-
-   index_t        currentFeatureID = 0;   // Index into feature vector is -1 until vector is traversed.
-                                          // Todo - use different way to verify unused. -1 
-                                          //        for unused doesn't work with unsigned underlying 
-                                          //        type.
-
-   /* todo - why do I need this?
-   */
-   vector<float> &feature_r;              // Pointer to feature vector of floats.
-   vector<float>::iterator f_it;    // feature iterator.
+   bool           isAnObstacle = false;   // True, when the current feature is part of an object.
+   angle_t        location;               // location of obstacle center.
+                                          // (feature(rightEdge) - feature(leftEge)) / 2
+   vector<angle_t>            &feature_r; // Pointer to feature vector of angle_t (float) values.
+   vector<angle_t>::iterator  f_it;       // feature iterator.
 
    // Member Functions()
 
-   // Todo: Add creation of feature iterator to constructor...
-   Detector(vector<float> &featureInit_r)
+   // Initialize feature iterator in constructor.
+   Detector(vector<angle_t> &featureInit_r)
       : feature_r(featureInit_r)
    {
-      /*
-         if ( f_it == featureInit_r.begin() )
-         cout << "Detector(): feature_r.begin() = " << *f_it << endl;
-      if (*feature_Init_r == f_r[0])
-      {
-         cout << "f_it equals begin.";
-      }
-      else
-      {
-         cout << "f_it doesn't equal begin.";
-      }
-      cout << endl;
-      return true;
-      */
    }
 
    bool nextFeatureInRange()
    {
-      angle_t thetaDiff;
-      bool     result = false;     // ToDo, place a pointer in Detector class that is initialized
-      vector<float>::iterator n_it;
+      angle_t                   thetaDiff;
+      bool                      result = false;
+      bool                      tst4   = false;      // Enable nextFeatureInRange() debug statements.
+      vector<angle_t>::iterator n_it;
       n_it = f_it + 1;              // Assume next value in vector is valid.
-                           // upon instantiation... of Detector.
-      cout << ", Next:" << *(n_it);
+                                    // upon instantiation... of Detector.
+      if (tst4) { cout << ", nfir... Next:" << *(n_it); }
 
-      // thetaDiff = feature_r[currentFeatureID + 1] - feature_r[currentFeatureID];
+      // thetaDiff = nextfeature_Degrees - currentFeature_Degrees
       thetaDiff = *n_it - *f_it;
-      cout << ", Diff:" << (float)thetaDiff;
+      if (tst4) { cout << ", nfir... Diff:" << (angle_t)thetaDiff; }
 
       result    = (thetaDiff <= maxDiff);
-      cout << ", NextInRange:" << result;
+      if (tst4) { cout << ", nfir... NextInRange:" << result << endl; }
       return result;
    }
 
    bool nextFeatureValid()
    {
-       //                false if index computed beyond end of vector.
-       //             ... when currentFeatureID + 1 goes beyond last index in feature vector.
+       //    false if pointer computed beyond end of vector.
+       // ... when currentFeatureIterator + 1 goes beyond last entry in feature vector.
        //
-       //             c = current iterator value.
-       //             n = f + 1 = next iterator value
-       //             return ( (n is not last element) );
+       // f = current iterator value.
+       // n = f + 1 = next iterator value
+       // return ( (n is not last element) );
 
       bool result = false;
-      vector<float>::iterator n_it;
+      bool tst5 = false;
+      vector<angle_t>::iterator n_it;
       n_it = f_it + 1;
       result = (n_it != feature_r.end());
-      cout << "NextValid:" << result;
-      return (result);
+      if (tst5) {cout << "NextValid:" << result;}
+
+     return (result);
    }
 
-
-   bool isFalseLastObstacle()
+   // Return true if number of features sufficient to consider cluster as an obstacle.
+   bool featureCountSufficient(void)
    {
-      if (lastObstacle)
-      {
-         return true;
-      }
-      else
-      {
-         return false;
-      }
+     return featureCount >= minFeatureInObst;
    }
 
+   void outputObstacleRecord(void)
+   {
+     bool enableObstacleOutput = true; // Enable record output
+
+     if (enableObstacleOutput)
+     { // Output obstacle data
+
+        cout  
+           << "  obstruction center.. " 
+           << obstacleCenter() << ", "
+           << "left edge.., "  << *lEdge_it << ", "
+           << "right edge.., " << *rEdge_it << endl; 
+     }
+   }
+
+   angle_t obstacleCenter()
+   {
+     location = (*lEdge_it + *rEdge_it)/2;
+     return location;
+   }
+ 
 }; // Detector
 
 /*
@@ -328,70 +154,149 @@ class Detector
  */
 int main( int argc, char **argv )
 {
+   cout << "BusLogic 3/30/2020 21:39" << endl;
+   cout << "Obstacle Detection State Machine" << endl;
 /*
        DATA STRUCTURES SECTION:
 */
-   vector<float>        feature;       // Vector of features... input data.
-   vector<obstacle_t>   obstacle;      // Vector of obstacles. This is the output data.
-   // Detector d;
-   Detector d(feature);
+   vector<angle_t>        feature;       // Vector of features... input data.
+   Detector               d(feature);    // Singleton instance of Detector class.
+
 /*
        DATA IMPORT SECTION:
 */
-    assert(argc >= 2); // Todo: Make more elegant check for usage errors.
+    assert(argc >= 2);
     ifstream fin(argv[1]);
     if( fin )
     {
-        copy( csv_istream_iterator<float>( fin ),
-              csv_istream_iterator<float>(),
-              insert_iterator< vector<float> >( feature, feature.begin() ) );
+        copy( csv_istream_iterator<angle_t>( fin ),
+              csv_istream_iterator<angle_t>(),
+              insert_iterator< vector<angle_t> >( feature, feature.begin() ) );
 
         fin.close();
     }
 
-
 /* 
         ALGORITHMIC SECTION:
-       
-         Detector             detector(feature);
-
-        IDFirstObstacle(Features)
-        If CurrentFeatureID == -1, quit
-        lastObstacle = false
-
-        While (isFalseLastLastObstacle())
-            IDNextObstacle(Features)
 */
+       bool tst1 = false; // Detailed debug statements
+       bool tst2 = false; // Top of For Loop debug statements
 
-        cout << "BusLogic 3/13/2020 15:41" << endl;
-        cout << "f_it:" << endl;
+       enum class eState {freeFeature, obstacleCandidate, obstacleOpen, terminate};
+       eState state = eState::freeFeature;
+
+        // On entry:
+        d.featureCount = 1;
+        d.isAnObstacle = false;
+
+        if (tst1) { cout << "t0, freeFeature "; }
         for (d.f_it = feature.begin() ; d.f_it != feature.end(); ++d.f_it) 
         {
-           // Todo - Add feature processing here.
-
-           cout << *d.f_it << ", ";
-
-           if (d.nextFeatureValid())
+           if (tst2) { cout << endl << endl << "TOF:  *d.f_it " << *d.f_it 
+              << "d.featureCount " << d.featureCount 
+              << endl; }
+           if (state == eState::freeFeature)
            {
-              bool inRange = d.nextFeatureInRange();
+              if (tst1) { cout << "freeFeature  " << endl; }
+              // Todo - Add flow from freeFeature to terminate here and on diagram.
+              // Todo - test flow t1t
+              // Last feature...
+              if  (d.nextFeatureValid() == false)
+              {
+                 if (tst1) { cout << "t1t, "; }
+                 state = eState::terminate;
+              }
+              else if (d.nextFeatureInRange())
+              {
+                 if (tst1) { cout << "t1a, "; }
+                 d.featureCount++;
+                 d.lEdge_it = d.f_it;
+                 state = eState::obstacleCandidate;
+                 if (tst1) { cout << "  lEdge " << *d.lEdge_it << ", " << endl; }
+              }
+              // not nextFeatureInRange
+               else // if ((d.nextFeatureInRange()) == false)
+              {
+                 if (tst1) { cout << "t1b, "; }
+                 d.featureCount = 1; // Todo - remove from code here and drawing. Verify no change in behavior.
+              }
            }
-           cout << endl;
+           else if (state == eState::obstacleCandidate)
+           {
+             // Last feature and feature count sufficient...
+              if  ((d.nextFeatureValid() == false) && d.featureCountSufficient())
+              {
+                 if (tst1) { cout << "t2t, "; }
+                 d.rEdge_it = d.f_it;  // Capture right edge of obstacle.
+                 if (tst1) { cout << "  rEdge " << *d.rEdge_it << ", " << endl; }
+                 d.outputObstacleRecord();
+                 state = eState::terminate;
+              }
+              // Last feature in range
+              else if (d.nextFeatureInRange()             //  If current is the end,
+                 && d.featureCountSufficient())           //  and sufficient features
+              {                                           //  to be considered obstacle.
+                 if (tst1) { cout << "t2a, "; }
+                 d.isAnObstacle = true;
+                 state = eState::obstacleOpen;
+             }
+              else if (d.nextFeatureInRange() && (d.featureCountSufficient() == false))
+              {
+                 if (tst1) { cout << "t2c, "; }
+                 d.featureCount++;
+              }
+             // nextFeatureInRange not in range.
+               else // if ((d.nextFeatureInRange()) == false)
+              {
+                 if (tst1) { cout << "t2b, "; }
+                 d.featureCount = 1;
+                 state = eState::freeFeature;
+              }
+            }  // ( state == eState::obstacleCandidate)
 
-        }
+           else if (state == eState::obstacleOpen)
+           {
+              if (tst1) { cout << "obstacleOpen " << endl; }
 
-/*
-       OUTPUT SECTION:
-       feature now contains all floating point values in the comma-delimited
-       data file.  now dump them to the screen to verify:
-*/
-// This works!
-//    copy( feature.begin(), feature.end(), ostream_iterator<float>( cout, " " ) );
+              // Last feature
 
-    // Todo: Replace output of input data with output of Algorithmic Section
+              // Todo - test flow t3t
+              // Last feature...
+              if  (d.nextFeatureValid() == false)
+              {
+                 if (tst1) { cout << "t3t, "; }
+                 d.rEdge_it = d.f_it;
+                 d.isAnObstacle = false;
+                 state = eState::terminate;
+                 d.outputObstacleRecord();
+             }
+              else if (d.nextFeatureInRange())
+              {
+                 if (tst1) { cout << "t3c, "; }
+                 d.featureCount++;
+              }
+              else // if ((d.nextFeatureInRange() == false)
+              {
+                 if (tst1) { cout << "t3b, "; }
+                //Record Right Edge
+                 d.rEdge_it = d.f_it;
 
-    //  obstacleHelper.Cout()
-    //      For (i=0; i>numObstacles; i++)
-    //          CoutObstacle()
+                 d.featureCount = 1;
+                 d.isAnObstacle = false;
+                 state = eState::freeFeature;
+                 d.outputObstacleRecord();
+              }
+           }  // state == eState::obstacleOpen)
+           else if (state == eState::terminate)
+           {
+              if (tst1) { cout << "terminate " << endl; }
+           }
+           else 
+           {
+              cout << endl << "ERROR - Unauthorized end of state machine." << endl;
+           }
 
-    return 0;
+        } // End Obstacle Detector State Machine
+        if (tst1) { cout << "State machine exit. " << endl; }
+  return 0;
 }
