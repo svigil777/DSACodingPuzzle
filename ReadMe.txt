@@ -30,7 +30,7 @@ Status:  3/31/2020
    And, after suitable rest and recovery, I have come back, instrumented 
    the code, observed it's internal states as it progressed through the test 
    cases, watched as sometimes the code did the wrong thing and sometimes 
-   the test supplied the incorrect data for excercising the intended states, 
+   the test supplied the incorrect data for exercising the intended states, 
    transitions and computations.  Per guidance from Agile and the Unified 
    Development Process, I have used iterative, incremental development and 
    test techniques to successively refine the design, the code and the test
@@ -48,8 +48,7 @@ Status:  3/31/2020
 
    As part of this, the following items have also been completed.
    o Class definitions needs to be refined. Choice between use of vectors or 
-     lists needs 
-     more attention. 
+     lists needs more attention. 
    o Algorithmic detail (aka business logic) needs to be realized in code.
    o Design material and code needs to be saved into GIT.
    o Design material needs to be written to assigned format.
@@ -75,7 +74,7 @@ Where to go from here:
    the state machine.
 
    Clearly, this is a rather simplistic algorithm. And yet, depending 
-   upong the characteristics of features in the environment, it will have 
+   upon the characteristics of features in the environment, it will have 
    a varied degree of success. Therefore, tuning these parameters for the 
    obstacle environment is an activity that should be performed. This can 
    be done apriori by studying the expected obstacle environment. Or, it 
