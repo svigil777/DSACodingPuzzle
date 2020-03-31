@@ -28,21 +28,22 @@ as everything fell apart. lol
 And, after suitable rest and recovery, I have come back, instrumented the 
 code, observed it's internal states as it progressed through the test cases,
 watched as sometimes the code did the wrong thing and sometimes the test
-supplied the incorrect data for excercising the intended functionality.
+supplied the incorrect data for excercising the intended functionality. 
+Per guidance from Agile and the Unified Development Process, I have used 
+iterative, incremental development and test techniques. 
 
-In the end, the code, the drawing and the spreadsheet containing the test
-cases are in agreement. Log files capture test case results.
+After adding three more test cases, the code, the drawing and the spreadsheet 
+containing the test cases are in agreement and all flows are verified per the
+cases documented in "Verification Test Cases.xlsx" and "Verification Test
+Cases.pdf". Log files capture and demonstrate test case results.
 
-Following items have also been completed.
+As part of this, the following items have also been completed.
 o Class definitions needs to be refined. Choice between use of vectors or lists needs 
   more attention. 
 o Algorithmic detail (aka business logic) needs to be realized in code.
 o Design material and code needs to be saved into GIT.
 o Design material needs to be written to assigned format.
 o Questions asked about the code not addressed in these comments need to be answered.
-
-Todo:
-Complete Todo items...
 
 Requirements:
     1.  An object shall be considered a collection of Nmin or more features 
@@ -113,3 +114,9 @@ Requirements:
 
         A feature > ½ sigma away from center of object is considered an outlier.        
         For simplicity, assume sigma is 10.
+
+To Do:
+
+   Experiment with KBRwyle provided features data and tune state machine
+   parameters to optimize performance for NASA provided features data.
+
