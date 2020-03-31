@@ -2,6 +2,183 @@ DSA Coding Puzzle Assignment v.2
 
 Candidate:  Scott Vigil  svigil777@gmail.com
 
+3/31/2020:
+
+Status:  3/31/2020
+
+                     Obstacle Detection State Machine
+
+   One thing I realized as I was implementing the previous delivery was 
+   that the complexity was getting a bit out of hand. It just seemed that
+   my simplistic approach toward the behavior of the Obstacle Detection
+   algorithm was missing some important use case scenarios. 
+
+   So, I decided to produce a state machine for this next effort. That
+   construct allows for behavioral modification based upon previous 
+   actions. Please see drawing in "Obstacle Identification State 
+   Machine.pdf".
+
+
+   I have realized the design. That is, I have implemented the design in 
+   code form. In addition, I have written two test cases on a spread sheet 
+   that exercise all but two flows of the state machine. I have written an 
+   input test file that supplies the inputs as documented in the test, 
+   i4.txt. And, I have watched in horror as everything fell apart. lol
+
+                       Initial Verification Test Case
+
+   And, after suitable rest and recovery, I have come back, instrumented 
+   the code, observed it's internal states as it progressed through the test 
+   cases, watched as sometimes the code did the wrong thing and sometimes 
+   the test supplied the incorrect data for excercising the intended states, 
+   transitions and computations.  Per guidance from Agile and the Unified 
+   Development Process, I have used iterative, incremental development and 
+   test techniques to successively refine the design, the code and the test
+   cases.
+
+                            Additional Test Cases
+
+   After adding three more test cases, the code, the drawing, and the 
+   spreadsheet containing the test cases are in agreement and all flows are 
+   verified per the cases documented in "Verification Test Cases.xlsx" and 
+   "Verification Test Cases.pdf". Log files capture and demonstrate test 
+   case results.
+
+                           Previously Defined Tasks
+
+   As part of this, the following items have also been completed.
+   o Class definitions needs to be refined. Choice between use of vectors or 
+     lists needs 
+     more attention. 
+   o Algorithmic detail (aka business logic) needs to be realized in code.
+   o Design material and code needs to be saved into GIT.
+   o Design material needs to be written to assigned format.
+   o Questions asked about the code not addressed in these comments need to 
+     be answered.
+
+Where to go from here:
+
+   The next step that I will take, time permitting, is to experiment with 
+   KBRwyle provided feature data and tune state machine parameters to 
+   optimize performance for NASA provided features data. There are two. 
+   The first is maxDiff. This value is the largest angle between features 
+   that are part of the same obstacle. It was set arbitrarily at 10 
+   degrees. At this setting if you have a cluster of features that form 
+   an obstacle, any feature that is greater than ten degrees to the right 
+   or to the left of the outermost feature are considered not part of that 
+   obstacle. 
+
+   The second tunable parameter is minFeatureInObst. This is the smallest 
+   number of features that must be clumped together in order to have an 
+   obstacle. That value was initially set to three. However, it was 
+   increased to four simply to make it possible to verify all the flows in 
+   the state machine.
+
+   Clearly, this is a rather simplistic algorithm. And yet, depending 
+   upong the characteristics of features in the environment, it will have 
+   a varied degree of success. Therefore, tuning these parameters for the 
+   obstacle environment is an activity that should be performed. This can 
+   be done apriori by studying the expected obstacle environment. Or, it 
+   could be performed real-time adaptively by monitoring feature 
+   characteristics.
+
+   On the Boeing autopilots, we had five or seven flight modes. Different 
+   gain schedules were used for the flight modes. Clearly, such an approach 
+   could be used with this algorithm.
+
+Requirements:
+
+   Below is an improved set of requirements. This list has been refined
+   based on experiences gained on producing the implementation to this stage.
+
+    1.  An object shall be considered a collection of Nmin or more features 
+        clustered together, not more than Nd (ten degrees) apart. 
+        Default configuration follows:
+
+        Nd = 10, Nmin = 4
+
+        << Replaces... >>
+
+        Configure expected Object size: OBJ_SIZE_MIN, OBJ_SIZE_MAX 
+
+   2.   For {Theta: 0 <= Theta < 360}
+                Scan feature points from text file, floating point values
+
+   3.   Input text file shall be structured with a series of comma separated 
+        floating point values, nominally formatted as...
+
+            aaa.aaa,bbb.bbb,ccc.ccc,...
+
+        Assume the file has <CR><LF> at the end.
+
+   4.   Create a list of features, ListOfFeatures:   
+            Attributes: PositionOnCircleDeg, PrevFeature, NextFeature
+            Implementation: vector
+
+   5.   Output a list of feature locations in units degrees to standard output.
+
+        << replaces... >>
+
+        Create a list of objects with center of arc object and boundaries, ListOfObjs: 
+            Attributes: PositionOnCircleDeg, PrevObj, NextObj
+            Implementation: vector
+
+            Algorithm:    
+                Initialize object count to zero.
+                Set CurrentFeature = index 0.
+                While current feature is valid.
+                Label: New feature
+                Initialize feature count to zero.
+                Label: process a feature
+                Repeat:
+                   Is next feature within 10 degrees? If not, cycle as current 
+                   feature is outlier. ObjectFound = false
+                Else
+                    Print the list of objects, PrintObjs
+
+  Assumptions:
+   1.   No feature crosses 360 degree boundary. This boundary is set at the 
+        tail of the aircraft to minimize omission of an item of interest. For 
+        craft not having a tail, assume that the 360 degree boundary is in 
+        the direction opposite of intended travel.
+
+   2.   Object size is between 20 and 30 degrees arc.  << Assumption removed. >>
+
+   3.   A feature with an arc distance from an obstacle > 10 degrees is no a 
+        part of that obstacle.
+
+        << replaces... >>
+
+        Objects are no closer than 20 degrees next to one another. There is no 
+        overlap. 
+
+   4.   And outlier feature is one that is greater than ten degrees of arc 
+        from the next closest feature in an obstacle.
+
+        << replaces... >>
+
+        A feature > ½ sigma away from center of object is considered an outlier.        
+        For simplicity, assume sigma is 10.
+
+Build/Test Instructions:
+Build and test were performed under the latest CygWin toolset.
+
+Console example...
+
+svigi@DESKTOP-P9H9KT8 /cygdrive/c/cygwin64/home/svigi/Proj/BusLogic
+$ g++ -o BusLogic BusLogic.cpp
+
+svigi@DESKTOP-P9H9KT8 /cygdrive/c/cygwin64/home/svigi/Proj/BusLogic
+$ ./BusLogic.exe i4.txt
+BusLogic 3/28/2020 22:42
+Obstacle Detection State Machine
+  obstruction center.. 48, left edge.., 41.2, right edge.., 54.8
+  obstruction center.. 66.5, left edge.., 65, right edge.., 68
+
+To obtain instrumented output, edit BusLogic.cpp and set desired "tstn" 
+variables to "true" and re-build.
+
+
 3/13/2020:
 
 DSA Coding Puzzle Assignment v.
