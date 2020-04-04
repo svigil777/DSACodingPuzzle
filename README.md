@@ -1,10 +1,26 @@
-DSA Coding Puzzle Assignment v.2
+            Obstacle Detector Skills Demonstration Project
 
-Candidate:  Scott Vigil  svigil777@gmail.com
+                           Scott Vigil  scott@svis.com, svigil777@gmail.com
 
-3/31/2020:
+4/4/2020 Results:
 
-Status:  3/31/2020
+   The Obstacle Detector State Machine has been produced and run on 
+   features data provided by KBRwyle, contactor for NASA. It has 
+   analyzed features provided and recognized objects in that data as 
+   presented below.  While the Obstacle Detector does a great job of 
+   detecting obstacles presented by rather simple feature datasets, it 
+   is in the end a demonstration of development capabilities and 
+   process on my part.  For a real-world application, more work on the 
+   analysis algorithm. Also, more apriori knowledge of the features 
+   environment will be necessary. This will allow for proper tuning of 
+   the Obstacle Detector and more accurate obstacle recognition “in the 
+   wild”.  
+
+   Results are discussed in detail in the file, 
+
+      "Data Analysis and Discussion.pdf".
+
+3/31/2020 Status:
 
                      Obstacle Detection State Machine
 
@@ -96,10 +112,6 @@ Requirements:
 
         Nd = 10, Nmin = 4
 
-        << Replaces... >>
-
-        Configure expected Object size: OBJ_SIZE_MIN, OBJ_SIZE_MAX 
-
    2.   For {Theta: 0 <= Theta < 360}
                 Scan feature points from text file, floating point values
 
@@ -116,25 +128,6 @@ Requirements:
 
    5.   Output a list of feature locations in units degrees to standard output.
 
-        << replaces... >>
-
-        Create a list of objects with center of arc object and boundaries, ListOfObjs: 
-            Attributes: PositionOnCircleDeg, PrevObj, NextObj
-            Implementation: vector
-
-            Algorithm:    
-                Initialize object count to zero.
-                Set CurrentFeature = index 0.
-                While current feature is valid.
-                Label: New feature
-                Initialize feature count to zero.
-                Label: process a feature
-                Repeat:
-                   Is next feature within 10 degrees? If not, cycle as current 
-                   feature is outlier. ObjectFound = false
-                Else
-                    Print the list of objects, PrintObjs
-
   Assumptions:
    1.   No feature crosses 360 degree boundary. This boundary is set at the 
         tail of the aircraft to minimize omission of an item of interest. For 
@@ -146,18 +139,8 @@ Requirements:
    3.   A feature with an arc distance from an obstacle > 10 degrees is no a 
         part of that obstacle.
 
-        << replaces... >>
-
-        Objects are no closer than 20 degrees next to one another. There is no 
-        overlap. 
-
    4.   And outlier feature is one that is greater than ten degrees of arc 
         from the next closest feature in an obstacle.
-
-        << replaces... >>
-
-        A feature > ½ sigma away from center of object is considered an outlier.        
-        For simplicity, assume sigma is 10.
 
 Build/Test Instructions:
 Build and test were performed under the latest CygWin toolset.
